@@ -1,3 +1,6 @@
+<?php 
+ $role = session('admin_account')->role;
+?>
 <div class="col-xs-12">
 	<h3>Menu Items For <?php echo __filter('item_name',$parent_id); ?></h3>
 </div>
@@ -13,7 +16,15 @@
  }
 ?>
 
+<?php 
+ if ($role == 'admin'){
+?>
+
 	<a href="<?php echo base_url(); ?>item/add/<?php echo $parent_id;  ?>" class="btn btn-primary"> + Add Item</a>
+
+<?php 
+ }
+?>  
 </div>
 
 <div class="col-xs-12">
@@ -79,9 +90,14 @@
                   }
                  ?> 
 
+<?php 
+ if ($role == 'admin'){
+?>
 
             		<a href="<?php echo base_url(); ?>item/edit/<?php echo $v->id; ?>" class="btn btn-success">Edit</a>
-            		
+<?php 
+ }
+?>            		
             	</td>
             </tr>
 

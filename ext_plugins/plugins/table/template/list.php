@@ -1,3 +1,6 @@
+<?php 
+ $role = session('admin_account')->role;
+?>
 <div class="col-xs-12">
 	<h3>Table Management
 
@@ -23,8 +26,15 @@ Under <?php echo __filter('table_name',$parent_id); ?>
 <?php 
  }
 ?>
+<?php 
+ if ($role == 'admin'){
+?>
 
 	<a href="<?php echo base_url(); ?>table/add/<?php echo $parent_id; ?>" class="btn btn-primary"> + Add Table</a>
+<?php 
+ }
+?>
+
 </div>
 
 <div class="col-xs-12">
@@ -62,8 +72,13 @@ Under <?php echo __filter('table_name',$parent_id); ?>
                   ?>
 
 
-
+<?php 
+ if ($role == 'admin'){
+?>
             		<a href="<?php echo base_url(); ?>table/edit/<?php echo $v->id; ?>" class="btn btn-success">Edit</a>
+<?php 
+ }
+?>                  
             		
             	</td>
             </tr>

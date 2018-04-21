@@ -15,12 +15,12 @@
 	
 
   <b>Date From: </b>&nbsp;
-  <input name="" data-date id="date-from" value="<?php echo @$filter['date_created > ']; ?>" />
+  <input name="" data-date id="date-from" value="<?php echo @$filter['date_created > ']; ?>" required/>
   
   &nbsp;
   
   <b>Date To: </b>&nbsp;
-  <input name="" data-date id="date-to" value="<?php echo @$filter['date_created < ']; ?>"/>
+  <input name="" data-date id="date-to" value="<?php echo @$filter['date_created < ']; ?>" required/>
  &nbsp; 
   <button class="btn btn-sm btn-primary" id="filter-dates">Filter Dates</button>
  &nbsp;`
@@ -53,14 +53,14 @@
 		<b>Total Amount</b>
 	</span>
 	<span>
-		=N=<?php echo number_format($total->total_price); ?>
+		=N=<?php echo number_format($result['sums']['total_price']); ?>
 	</span>
 ,
 	<span>
 		<b>Total Qty.</b>
 	</span>
 	<span>
-		<?php echo number_format($qty->total_qty); ?>
+		<?php echo number_format($result['sums']['total_qty']); ?>
 	</span>
 
 
@@ -98,6 +98,9 @@
 			<th>
 				Table Location
 			</th>
+      <th>
+        Waiter
+      </th>
 			<th>
 				Status
 			</th>
@@ -122,12 +125,41 @@
             	</td>
 
             	<td>
-            		<?php echo $v->payment_type; ?>
+            		<?php
+
+                 echo $v->payment_type; 
+
+                 if ($v->payment_type == 'both'){
+
+                  ?>
+                  <!-- card -->
+                  <small>
+                  <div><b>
+                    Card: <?php echo number_format($v->card_split_value); ?>
+                  </b></div>
+                  </small>
+
+                  <!-- cash -->
+                  <small>
+                  <div><b>
+                    Cash: <?php echo number_format($v->cash_split_value); ?>
+                  </b></div>
+                  </small>
+
+                  <?php 
+
+                 }
+
+                ?>
             	</td>
 
             	<td>
             		<?php echo __filter('table_name', $v->table_id) ; ?>
             	</td>
+
+              <td>
+                <?php echo __filter('admin_user_name', $v->user_id); ?>
+              </td>
 
             	<td>
             		<?php echo __filter('order_status',$v->status); ?>
@@ -157,6 +189,10 @@
             		?>
 
 
+                <a data-index="<?php echo $k; ?>" data-payment-type="<?php echo $v->payment_type; ?>" href="<?php echo base_url(); ?>actions/launch/order/get_invoice/<?php echo $v->id; ?>" class="btn btn-sm btn-warning">Get Invoice</a>
+
+
+
             		<button data-index="<?php echo $k; ?>" class="btn btn-info detail">Detail</button>
             		
             	</td>
@@ -170,36 +206,46 @@
 </div>
 
 <div class="col-xs-12" align="center" style="padding: 11px;">
+   <?php 
+     if (isset($result['pagination']['firstpage'])){
+   ?>
+   <a href="?page=<?php echo $result['pagination']['firstpage']; ?>" class="btn btn-default">First</a>
+   <?php   
+     }
+   ?>
+
+   <?php 
+     if (isset($result['pagination']['prevpage'])){
+   ?>
+   <a href="?page=<?php echo $result['pagination']['prevpage']; ?>" class="btn btn-default">Prev</a>
+   <?php   
+     }
+   ?>
+
+
+
+   <?php 
+     if (isset($result['pagination']['nextpage'])){
+   ?>
+   <a href="?page=<?php echo $result['pagination']['nextpage']; ?>" class="btn btn-default">Next</a>
+   <?php   
+     }
+   ?>
+
+
+      <?php 
+     if (isset($result['pagination']['lastpage'])){
+   ?>
+   <a href="?page=<?php echo $result['pagination']['lastpage']; ?>" class="btn btn-default">Last</a>
+   <?php   
+     }
+   ?>
+
 <?php 
+if (isset($result['pagination']['firstpage']))
+echo " ( Page {$result['pagination']['firstpage']} of {$result['pagination']['lastpage']} ) ";
+?>  
 
-if ($page == 1) {
-   echo " FIRST PREV ";
-} else {
-   echo ' <a class="btn btn-default btn-sm" href="' . base_url() . 'order/list/1" >FIRST</a> ';
-   $prevpage = $page-1;
-   echo ' <a class="btn btn-default btn-sm" href="' . base_url() . 'order/list/' . $prevpage . '" >PREV</a> ';
-
-   // echo " <a href='{$_SERVER['PHP_SELF']}?pageno=$prevpage'>PREV</a> ";
-} // if
-
-echo " ( Page $page of $lastpage ) ";
-
-
-if ($page == $lastpage) {
-   echo " NEXT LAST ";
-} else {
-   $nextpage = $page+1;
-   echo ' <a class="btn btn-default btn-sm" href="' . base_url() . 'order/list/' . $nextpage . '" >NEXT</a> ';
-   echo ' <a class="btn btn-default btn-sm" href="' . base_url() . 'order/list/' . $lastpage . '" >LAST</a> ';
-
-   // echo " <a href='{$_SERVER['PHP_SELF']}?pageno=$nextpage'>NEXT</a> ";
-   // echo " <a href='{$_SERVER['PHP_SELF']}?pageno=$lastpage'>LAST</a> ";
-} // if
-
-
-
-
-?>	
 </div>
 
 <div id="modal-parent" style="display: none;left: 0px;top: 0px;position: fixed;z-index: 9000;background-color: rgba(0, 0, 0, 0.5);width: 100%;height: 100vh;align-content: center;text-align: center;padding-top: 100px;">
@@ -371,6 +417,104 @@ if ($page == $lastpage) {
 
 
 
+
+<!-- uni window -->
+   <div style="display: inline-block;width: 300px;min-height: 200px;background-color: #fff;" id="uni-window">
+      
+
+      <div align="right">
+        <button id="close" class="btn btn-danger">
+        X </button>
+      </div>
+
+<form method="post" action="">
+
+   <div>
+     <h4 style="
+    font-weight: bold;
+    text-decoration: underline;
+">Order Confirmation</h4>
+   </div>
+
+
+      <div class="col-xs-12">
+        <label>Payment Type</label>
+      </div>
+      <div class="col-xs-12">
+        <select id="payment_type1" class="form-control" name="payment_type" required="">
+          <option value="cash">--Select Payment Type (Cash Default)--</option>
+          <option value="cash">Cash</option>
+          <option value="card">Card</option>
+          <option value="both">Both/Split Payment</option>
+        </select>
+      </div>
+
+
+      <div>
+        <label>Qty</label>
+      </div>
+      <div>
+        <b id="total_qty"></b>
+      </div>
+
+      <div>
+        <label>Amount</label>
+      </div>
+      <div>
+        <b id="total_price"></b>
+      </div>
+
+      <div id="cash" style="display: none;">
+        
+      <div>
+        <label>Amount Tendered</label>
+      </div>
+      <div>
+        <input type="number" id="amount_tendered" name="amount_tendered" style="text-align: center;margin-bottom: 11px;" placeholder="Amount Tendered" required="" />
+      </div>
+
+
+
+      </div>
+
+      <div id="card" style="display: none;">
+        
+        (Card)
+        
+      </div>
+
+      <div id="both" style="display: none;">
+        
+
+      <div>
+        <label>Amount Card</label>
+      </div>
+      <div>
+        <input type="number" id="card_split_value" name="card_split_value" style="text-align: center;margin-bottom: 11px;" placeholder="Amount Card" required="" />
+      </div>
+
+
+      <div>
+        <label>Amount Cash</label>
+      </div>
+      <div>
+       <input type="number" id="cash_split_value" name="cash_split_value" style="text-align: center;margin-bottom: 11px;" placeholder="Amount Cash" required="" />
+      </div>
+
+
+      </div>
+
+
+     
+      <div>
+        <input style="margin-bottom: 11px;" type="submit" value="Confirm" class="btn btn-primary" />
+      </div>
+
+</form>
+     
+   </div>
+
+
 <!-- details -->
 
 
@@ -453,7 +597,20 @@ if ($page == $lastpage) {
      var date_from = $('#date-from').val();
      var date_to = $('#date-to').val();
 
-     location.href = '<?php echo base_url(); ?>actions/launch/order/save_date_filter/' + date_from + '/' + date_to;
+     if (date_from!= '' && date_to!= ''){
+       location.href = '<?php echo base_url(); ?>actions/launch/order/save_date_filter/' + date_from + '/' + date_to;
+     }else{
+
+        $('#date-from').css('border','2px solid red');
+        $('#date-to').css('border','2px solid red');
+
+        setTimeout(function(){
+          $('#date-from').css('border','1px solid green');
+          $('#date-to').css('border','1px solid green');
+        },2000);
+
+     }
+
   });
 
 
@@ -469,7 +626,7 @@ if ($page == $lastpage) {
       var $cash_window = $('#cash-window');
       var $card_window = $('#card-window');
 
-      var windows_ = ['#card-window','#cash-window','#both-window','#detail-window'];
+      var windows_ = ['#card-window','#cash-window','#both-window','#detail-window','#uni-window'];
 
       function reset_windows($skip){
         $.each(windows_,function(k,v){
@@ -519,6 +676,7 @@ if ($page == $lastpage) {
           if (k == 'total_price'){
             
             var val = +v; 
+            window.$total_price = +v;
             $(sel).find('#' + k).html( '=N=' + val.toLocaleString());
           
  
@@ -576,6 +734,68 @@ if ($page == $lastpage) {
 
       }
 
+      function show_uni(obj,url){
+        //uni-window
+        show_modal();
+        reset_windows('#uni-window');
+        update_prop('#uni-window',url,obj);   
+
+        var $parent = $('#uni-window');   
+
+        function calculate_other($ref,sel,cb){
+          var vl = +($ref.val());
+          var sub_total = $total_price;
+          if (isNaN(vl)){
+            $ref.val(0);
+            $(sel).val(sub_total);
+
+          }else{
+            if (vl <= sub_total){
+             $(sel).val(sub_total - (+vl));
+             if (cb)cb(vl);
+            }else{
+             $ref.val(0);
+             $(sel).val(sub_total);     
+            }
+          }
+        }
+
+        $parent.find('#cash_split_value').on('keyup',function(){
+          calculate_other($(this),$parent.find('#card_split_value'),function(calculated_value){
+
+              $parent.find('#amount_tendered').val(calculated_value);
+
+          });
+        });
+
+
+
+        $parent.find('#cash_split_value').val($total_price);
+        $parent.find('#cash_split_value').trigger('keyup');
+
+
+        $parent.find('#card_split_value').on('keyup',function(){
+          calculate_other($(this),$parent.find('#cash_split_value'));
+        });
+
+
+        function reset_all(){
+         $parent.find('#cash').hide(); 
+         $parent.find('#card').hide();
+         $parent.find('#both').hide();
+        }
+
+        $parent.find('#payment_type1').on('change',function(){
+          
+          reset_all();
+          $('#' + $(this).val()).show();
+
+        });
+
+        $parent.find('#payment_type1').trigger('change');
+
+      }
+
 
       function show_detail(obj){
         show_modal();
@@ -608,13 +828,14 @@ if ($page == $lastpage) {
           
              console.log(json_obj,json_items);
 
-            if (payment_type == 'cash'){
-             show_cash(json_obj,url);
-            }else if (payment_type == 'card'){
-             show_card(json_obj,url);
-            }else if (payment_type == 'both'){
-              show_split(json_obj,url);
-            }
+            show_uni(json_obj,url);
+            // if (payment_type == 'cash'){
+            //  show_cash(json_obj,url);
+            // }else if (payment_type == 'card'){
+            //  show_card(json_obj,url);
+            // }else if (payment_type == 'both'){
+            //   show_split(json_obj,url);
+            // }
 
 
         });

@@ -22,6 +22,26 @@
 	</div>
  -->
 
+	<div class="col-xs-12">
+		<label>
+			First Name
+		</label>
+	</div>
+	<div class="col-xs-12">
+		<input type="text" name="post_data[first_name]" placeholder="First Name" class="form-control" />
+	</div>
+
+	<div class="col-xs-12">
+		<label>
+			Last Name
+		</label>
+	</div>
+	<div class="col-xs-12">
+		<input type="text" name="post_data[last_name]" placeholder="Last Name" class="form-control" />
+	</div>
+
+
+
 
 	<div class="col-xs-12">
 		<label>

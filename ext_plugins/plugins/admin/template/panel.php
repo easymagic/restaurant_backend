@@ -60,7 +60,7 @@
 
 
 <div style="color: #fff;padding-top: 7px;font-size: 14px;" class="pull-right">
-	Welcome Admin
+	Welcome <?php echo ucfirst(session('admin_account')->email); ?>
 </div>                    
 
                     
@@ -80,7 +80,7 @@
                             <img class="img-circle" src="images/photos/profile.png" alt="">
                         </a>
  -->                        <div class="media-body">
-                            <h4 class="media-heading">Welcome Admin</h4>
+                            <h4 class="media-heading">Welcome <?php echo ucfirst(session('admin_account')->role); ?></h4>
                             <!-- <small class="text-muted">Beach Lover</small> -->
                         </div>
                     </div><!-- media -->

@@ -53,9 +53,9 @@ function uc_table_order_create(){
   $post['customer_name'] = request('customer_name'); 
   $post['total_qty'] = request('total_qty');
   $post['total_price'] = request('total_price');
-  $post['payment_type'] = request('payment_type');
-  $post['card_split_value'] = request('card_split_value');
-  $post['cash_split_value'] = request('cash_split_value');
+  // $post['payment_type'] = request('payment_type');
+  // $post['card_split_value'] = request('card_split_value');
+  // $post['cash_split_value'] = request('cash_split_value');
   // $post['amount_tendered'] = request('amount_tendered');
   $post['status'] = request('status');
 
@@ -64,12 +64,57 @@ function uc_table_order_create(){
 
 
 
-  __action('entity_create','customer_order',$post);
+  $new_id = __action('entity_create','customer_order',$post);
+  response('order_id',$new_id);
 
   log_success('Order created successfully');
 
 }
 add_listener('uc_table_order_create','uc_table_order_create');
+
+
+function uc_table_order_update($id){
+  
+  $post_data = request('post_data');
+  $current_table = request('current_table');
+
+  $post = array();
+  $post['json_data'] = request('json_data');
+  // order_checkout
+  $post['date_created'] = date('Y-m-d h:i:s');
+  $post['user_id'] = request('user_id');
+  $post['customer_name'] = request('customer_name'); 
+  $post['total_qty'] = request('total_qty');
+  $post['total_price'] = request('total_price');
+  // $post['payment_type'] = request('payment_type');
+  // $post['card_split_value'] = request('card_split_value');
+  // $post['cash_split_value'] = request('cash_split_value');
+  // $post['amount_tendered'] = request('amount_tendered');
+  $post['status'] = request('status');
+
+  $post['table_id'] = request('table_id'); // $current_table;  //$post_data['table_id'];
+
+
+  __action('entity_where','id',$id);
+  __action('entity_update','customer_order',$post);
+
+  // $new_id = __action('entity_create','customer_order',$post);
+  // response('order_id',$new_id);
+
+  log_success('Order updated successfully');
+
+}
+add_listener('uc_table_order_update','uc_table_order_update');
+
+
+
+function uc_order_status($id){
+ // $post['approved_by'] = session('admin_account')->id;
+ __action('entity_where','id',$id);
+ $resp = __action('entity_get','customer_order');
+ response('status',$resp[0]->status);
+}
+add_listener('uc_order_status','uc_order_status');
 
 
 

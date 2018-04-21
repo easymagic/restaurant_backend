@@ -43,8 +43,9 @@
  function admin_login(){
 
   save_history();
-  
-  if (!empty(session('admin_account'))){
+  $check=session('admin_account');
+
+  if (!empty($check)){
     redirect('order/list');
   }
   // print_r(_db());	
@@ -89,7 +90,8 @@
 
  function admin_panel($content=''){
  	// echo 'Called.';
-  if (empty(session('admin_account'))){
+  $check=session('admin_account');
+  if (empty($check)){
     redirect('home/index_new');
   }	
   start_buffer();
@@ -156,7 +158,9 @@ add_listener('nav_admin_profile','admin_profile');
 
 function admin_change_password(){
   save_history();
-  if (!empty(session('admin_account'))){
+  $check=session('admin_account');
+
+  if (!empty($check)){
     $id = session('admin_account')->id;
   }
   start_buffer();
@@ -185,4 +189,14 @@ function admin_js_support($footer=''){
 }
 add_listener('footer','admin_js_support');
 
+
+function admin_user_name($id){
+ $resp = __action("entity_get_where","user",array("id"=>$id));
+ if (count($resp) > 0){
+  return $resp[0]->first_name;
+ }else{
+  return 'null';
+ }
+}
+add_listener('admin_user_name','admin_user_name');
 

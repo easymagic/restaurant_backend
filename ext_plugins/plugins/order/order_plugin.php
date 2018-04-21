@@ -14,6 +14,14 @@ init_usecases('order');
  add_listener('admin_menu','order_admin_menu');
 
 
+ function order_transaction_id($id){
+   $r = md5($id);
+   $r = substr($r, -5);
+   return $r;
+ }
+ add_listener('order_transaction_id','order_transaction_id');
+
+
 
 function order_approve($id){
  
@@ -22,6 +30,11 @@ function order_approve($id){
  $post = array();
  $post['status'] = 1;
  $post['amount_tendered'] = request('amount_tendered');
+ $post['approved_by'] = session('admin_account')->id;
+ $post['payment_type'] = request('payment_type');
+ $post['card_split_value'] = request('card_split_value');
+ $post['cash_split_value'] = request('cash_split_value');
+ 
 
  __action('entity_update','customer_order',$post);
  
@@ -31,7 +44,27 @@ function order_approve($id){
 add_listener('uc_order_approve','order_approve');
 
 
+function uc_order_get_invoice($id){
+ 
+ // __action('entity_where','id',$id);
+ 
+ // $post = array();
+ // $post['status'] = 1;
+ // $post['amount_tendered'] = request('amount_tendered');
+ // $post['approved_by'] = session('admin_account')->id;
+
+ // __action('entity_update','customer_order',$post);
+ 
+ log_success('Invoice generated successfully , <a id="print-option" class="btn btn-success" data-href="' . base_url() . 'order/print_invoice/' . $id . '">Print Invoice.</a> ...');
+
+}
+add_listener('uc_order_get_invoice','uc_order_get_invoice');
+
+
+
+
 function order_print_receipt($id){
+
 
   $item = __action('entity_get_where','customer_order',array("id"=>$id));
   start_buffer();
@@ -42,12 +75,30 @@ function order_print_receipt($id){
 add_listener('nav_order_print_receipt','order_print_receipt');
 
 
+function order_print_invoice($id){
+
+
+  $item = __action('entity_get_where','customer_order',array("id"=>$id));
+  start_buffer();
+  include('template/print_invoice.php'); 
+  return __filter('body',get_buffer());
+
+}
+add_listener('nav_order_print_invoice','order_print_invoice');
+
+
+
+
 function order_void($id){
+ // $post['approved_by'] = session('admin_account')->id;
  __action('entity_where','id',$id);
- __action('entity_update','customer_order',array("status"=>"0"));
+ __action('entity_update','customer_order',array("status"=>"0",
+  "approved_by"=>session('admin_account')->id
+));
  log_success('Selected order voided successfully');
 }
 add_listener('uc_order_void','order_void');
+
 
 
 
@@ -65,7 +116,7 @@ function order_save_filter($k,$v=''){
 add_listener('uc_order_save_filter','order_save_filter');
 
 
-function order_save_date_filter($start,$stop){
+function order_save_date_filter($start='',$stop=''){
  
  __action('uc_order_save_filter','date_created > ', $start);
  __action('uc_order_save_filter','date_created < ', $stop . ' 23:59:59');
@@ -81,89 +132,36 @@ function order_test_csv(){
   // $data[] = array('name'=>'name1');
   // $data[] = array('name'=>'name2');
   // $data[] = array('name'=>'name3');
-  __action('export_to_excel',session('csv_items'));
+  __action('export_to_excel',__action('order_format_csv_data',session('csv_items') ) );
 }
 add_listener('nav_order_export_csv','order_test_csv');
 
 
 function order_list($page=1){
 
-  if ( empty(session('s_filter')) ){
+  $check=session('s_filter');
+
+  if ( empty($check) ){
     session('s_filter',array());
   }
 
   $where = session('s_filter');
    
-    save_history();
+  save_history();
 
-    if (!empty($where)){
-       __action('entity_where',$where);
-    }
+  start_buffer();
 
-    start_buffer();
-    $limit = 11;
+  $result = __action('record_management',array(
+   "table"=>"customer_order",
+   "sums"=>array('total_price','total_qty'),
+   "limit"=>30,
+   "criteria"=>$where,
+   "sort"=>array("id","desc")
+  ));
 
-    $count = __action('entity_count_all','customer_order');
-    
-    if (!empty($where)){
-       __action('entity_where',$where);
-    }
+  $items = $result['record'];
 
-    __action('entity_sum_field','total_price');
-
-    $total = __action('entity_get','customer_order');
-     
-    $total = $total[0];
-
-    if (!empty($where)){
-       __action('entity_where',$where);
-    }
-
-    __action('entity_sum_field','total_qty');
-
-    $qty = __action('entity_get','customer_order');
-     
-    $qty = $qty[0];
-
-
-    // print_r($total); 
-
-    // echo $count;
-// entity_sum_field
-
-//pagination start
-
-    $lastpage = ceil($count / $limit);
-
-    $page = (int) $page;
-    
-    if ($page > $lastpage) {
-       $page = $lastpage;
-    } // if
-
-    if ($page < 1) {
-       $page = 1;
-    } // if
-
-
-
-  //    __action('entity_order_desc','id');
-   
-  $csv_items = __action('entity_get','customer_order');
-
-  $csv_items = __action('order_format_csv_data',$csv_items);
-  
-  session('csv_items',$csv_items); 
-
-//pagination stop
-
-    if (!empty($where)){
-       __action('entity_where',$where);
-    }
-
-
-    __action('entity_order_desc','id');
-    $items = __action('entity_get','customer_order', $limit ,( ($limit * $page) - $limit ) );
+  session('csv_items',$items); 
 
     // print_r($resp);
 

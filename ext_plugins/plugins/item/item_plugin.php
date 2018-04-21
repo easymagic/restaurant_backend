@@ -7,7 +7,8 @@
    $r = $menu;
    $role = session('admin_account')->role;
 
-   $r = array_merge($r,array(array("Recipe Items","item/list/0","fa fa-spoon")));
+   //Recipe Items
+   $r = array_merge($r,array(array("Menu","item/list/0","fa fa-spoon")));
 
    // print_r($r);
    return $r;

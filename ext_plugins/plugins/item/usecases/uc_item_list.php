@@ -18,10 +18,10 @@
   $vat = __action('option_get','vat');
 
   foreach ($record as $k=>$v){
-   if ($vat != 'null'){
+   // if ($vat != 'null'){
     $record[$k]->price_default = $v->price;
-    $record[$k]->price = $v->price + $vat;
-   }
+    $record[$k]->price = $v->price; // + $vat;
+   // }
     
   }
 

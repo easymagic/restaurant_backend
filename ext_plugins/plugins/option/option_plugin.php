@@ -58,6 +58,16 @@ function save_settings(){
  __action('option_set','business_address',request('business_address'));
  __action('option_set','vat',request('vat'));
 
+ __action('option_set','service_charge',request('service_charge'));
+ __action('option_set','consumption_tax',request('consumption_tax'));
+ 
+ __action('option_set','business_contact',request('business_contact'));
+
+ //business_email
+ __action('option_set','business_email',request('business_email'));
+
+
  log_success('Settings saved');
 }
 add_listener('uc_save_settings','save_settings');
+

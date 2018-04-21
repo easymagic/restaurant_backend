@@ -22,7 +22,7 @@
  	<?php echo __filter('option_get','business_name'); ?>
  </b>	
  <div>
- 	<b>(Receipt)</b>
+ 	<b>(Invoice)</b>
  </div>
 </div>
 
@@ -135,7 +135,7 @@
 
 <div>
 	<span>
-		Customer Paid <?php echo strtoupper($item[0]->payment_type); ?>:
+		<!-- Customer Paid <?php //echo strtoupper($item[0]->payment_type); ?>: -->
 	</span>
 <!-- 	<b style="float: right;">
 		 =N= <?php //echo number_format($item[0]->total_price); ?>
@@ -181,37 +181,6 @@
 <?php 
  }
 ?>
-
-<!-- both start -->
-<?php 
- if ($item[0]->payment_type == 'both'){
-?>
-
-<div>
-	<span>
-		Cash Amount
-	</span>
-	<b style="float: right;">
-		=N= <?php echo number_format($item[0]->cash_split_value); ?>
-    </b>		
-</div>
-
-<div>
-	<span>
-		Card Amount
-	</span>
-	<b style="float: right;">
-		=N= <?php echo number_format($item[0]->card_split_value); ?>
-    </b>		
-</div>
-
-
-<?php 
- }
-?>
-
-<!-- both stop -->
-
 
 
 <div>
@@ -277,22 +246,6 @@
 
 
 <div style="margin-top: 11px;" align="center">
-<?php 
- if ($item[0]->payment_type == 'cash'){
-?>
-
-<!-- <div align="center">
- <div>
- 	<b>Amount Tenderred</b>
- </div>
- <div>
- 	=N=<?php //echo number_format($item[0]->amount_tendered); ?>
- </div>	
-</div>
- -->
-<?php 
- }
-?>
 <div>
 	Thank You. Please call again
 </div>

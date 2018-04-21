@@ -23,7 +23,8 @@ add_listener('entity_order_desc','db_order_desc');
 //count_all
 function db_count_all($table){
   //order_by
-  return _db()->count_all($table);
+  _db()->from($table);
+  return _db()->count_all_results();
 }
 add_listener('entity_count_all','db_count_all');
 
